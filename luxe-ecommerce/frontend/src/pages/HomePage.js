@@ -296,18 +296,35 @@ export default function HomePage() {
   const [loading, setLoading]       = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    document.title = 'LUXE — Premium Fashion Store';
-    Promise.all([
-      api.get('/products?featured=true&limit=8'),
-      api.get('/products?new_arrival=true&limit=4'),
-      api.get('/categories'),
-    ]).then(([f, n, c]) => {
-      setFeatured(f.data.products);
-      setNew(n.data.products);
-      setCategories(c.data.categories.slice(0, 5));
-    }).finally(() => setLoading(false));
-  }, []);
+ useEffect(() => {
+  document.title = 'LUXE — Premium Fashion Store';
+
+  Promise.all([
+    api.get('/products?featured=true&limit=8'),
+    api.get('/products?new_arrival=true&limit=4'),
+    api.get('/categories'),
+  ])
+    .then(([f, n, c]) => {
+      console.log('FEATURED RESPONSE:', f.data);
+      console.log('NEW ARRIVALS RESPONSE:', n.data);
+      console.log('CATEGORIES RESPONSE:', c.data);
+
+      setFeatured(Array.isArray(f.data?.products) ? f.data.products : []);
+      setNew(Array.isArray(n.data?.products) ? n.data.products : []);
+      setCategories(
+        Array.isArray(c.data?.categories)
+          ? c.data.categories.slice(0, 5)
+          : []
+      );
+    })
+    .catch((error) => {
+      console.error('Homepage API error:', error);
+      setFeatured([]);
+      setNew([]);
+      setCategories([]);
+    })
+    .finally(() => setLoading(false));
+}, []);
 
   
 
